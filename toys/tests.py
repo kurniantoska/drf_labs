@@ -47,6 +47,33 @@ class ToyTest(TestCase):
         # set client API
         self.client = APIClient()
 
+        # initiation data for post
+        self.data_post = [
+            {
+                "name": "Skater ska",
+                "description": "Hero skater",
+                "release_date": self.toy1.release_date.isoformat(),
+                "toy_category": "Action figures",
+                "was_included_in_home": False
+            },
+            {
+                "name": "PvZ 2 puzzle",
+                "description": "Plants vs Zombies 2 puzzle",
+                "toy_category": "Puzzle",
+                "was_included_in_home": False,
+                "release_date": self.toy1.release_date.isoformat()
+            },
+        ]
+
+        self.data_toy1_candidate = {
+            "description": "Plants vs Zombies 3 puzzle",
+            "name": "PvZ 3 puzzle",
+            "pk": 1,
+            "release_date": self.toy1.release_date.isoformat(),
+            "toy_category": "Puzzles & Games",
+            "was_included_in_home": False
+        }
+
     def test_create_toy(self):
         self.assertEqual(self.toy1.pk, 1)
         self.assertEqual(self.toy1.name, 'Snoopy talking action figure')
@@ -134,25 +161,7 @@ class ToyTest(TestCase):
             self.assertEqual(toy3.name, 'Clash Royale play set')
 
     def test_rest_post_get(self):
-        data_post = [
-            {
-                "name": "Skater ska",
-                "description": "Hero skater",
-                "release_date": self.toy1.release_date.isoformat(),
-                "toy_category": "Action figures",
-                "was_included_in_home": False
-            },
-            {
-                "name": "PvZ 2 puzzle",
-                "description": "Plants vs Zombies 2 puzzle",
-                "toy_category": "Puzzle",
-                "was_included_in_home": False,
-                "release_date": self.toy1.release_date.isoformat()
-            },
-
-        ]
-
-        for item_data in data_post:
+        for item_data in self.data_post:
             self.client.post(
                 '/toys/',
                 data=json.dumps(item_data),
@@ -179,15 +188,8 @@ class ToyTest(TestCase):
 
     def test_rest_put(self):
         self.client.get('/toys/1/').json()
-        data_toy1_candidate = {
-            "description": "Plants vs Zombies 3 puzzle",
-            "name": "PvZ 3 puzzle",
-            "pk": 1,
-            "release_date": self.toy1.release_date.isoformat(),
-            "toy_category": "Puzzles & Games",
-            "was_included_in_home": False
-        }
-        self.client.put('/toys/1/', data=json.dumps(data_toy1_candidate),
+
+        self.client.put('/toys/1/', data=json.dumps(self.data_toy1_candidate),
                         content_type='application/json')
         self.assertEqual(
             self.client.get('/toys/1/').json()['name'],
@@ -201,3 +203,116 @@ class ToyTest(TestCase):
             raise AssertionError
         except TypeError:
             pass
+
+    def test_cbv_post_get(self):
+        """
+        test post and get
+        with class based view
+        :return:
+        """
+        data_get = self.client.get('/toys/cbv/').json()
+        self.assertEqual(len(data_get), 2, "GET class based FAILED")
+
+        for item in self.data_post:
+            self.client.post(
+                '/toys/cbv/',
+                data=json.dumps(item),
+                content_type='application/json',
+            )
+
+        data_get = self.client.get('/toys/cbv/').json()
+        self.assertEqual(len(data_get), 4, "POST class based FAILED")
+
+    def test_cbv_put_delete(self):
+        self.client.put(
+            '/toys/cbv/1/',
+            data=json.dumps(self.data_toy1_candidate),
+            content_type='application/json'
+        )
+
+        self.assertEqual(
+            self.client.get('/toys/cbv/1/').json()['name'],
+            'PvZ 3 puzzle'
+        )
+
+        self.client.delete('/toys/cbv/1/')
+        self.assertEqual(
+            self.client.get('/toys/1/').status_code,
+            404
+        )
+        self.assertEqual(
+            self.client.get('/toys/cbv/1/').json()['detail'],
+            'Not found.'
+        )
+
+    def test_mixin_post_get(self):
+        data_get = self.client.get('/toys/cbv_mixin/')
+        self.assertEqual(len(data_get.json()), 2, 'Failed get data class based mixin')
+
+        for item in self.data_post:
+            self.client.post(
+                '/toys/cbv_mixin/',
+                data=json.dumps(item),
+                content_type='application/json',
+            )
+
+        data_get = self.client.get('/toys/cbv_mixin/')
+        self.assertEqual(len(data_get.json()), 4, 'Failed POST data class based mixin')
+
+    def test_mixin_put_delete(self):
+        self.client.put(
+            '/toys/cbv_mixin/1/',
+            data=json.dumps(self.data_toy1_candidate),
+            content_type='application/json'
+        )
+
+        self.assertEqual(
+            self.client.get('/toys/cbv_mixin/1/').json()['name'],
+            'PvZ 3 puzzle'
+        )
+
+        self.client.delete('/toys/cbv_mixin/1/')
+        self.assertEqual(
+            self.client.get('/toys/1/').status_code,
+            404
+        )
+        self.assertEqual(
+            self.client.get('/toys/cbv_mixin/1/').json()['detail'],
+            'Not found.'
+        )
+
+    def test_generic_post_get(self):
+        data_get = self.client.get('/toys/cbv_generic/')
+        self.assertEqual(len(data_get.json()), 2, 'Failed get data GENERIC class based mixin')
+
+        for item in self.data_post:
+            self.client.post(
+                '/toys/cbv_generic/',
+                data=json.dumps(item),
+                content_type='application/json',
+            )
+
+        data_get = self.client.get('/toys/cbv_generic/')
+        self.assertEqual(len(data_get.json()), 4, 'Failed POST data GENERIC class based mixin')
+
+    def test_generic_put_delete(self):
+        self.client.put(
+            '/toys/cbv_generic/1/',
+            data=json.dumps(self.data_toy1_candidate),
+            content_type='application/json'
+        )
+
+        self.assertEqual(
+            self.client.get('/toys/cbv_generic/1/').json()['name'],
+            'PvZ 3 puzzle'
+        )
+
+        self.client.delete('/toys/cbv_generic/1/')
+        self.assertEqual(
+            self.client.get('/toys/1/').status_code,
+            404
+        )
+        self.assertEqual(
+            self.client.get('/toys/cbv_generic/1/').json()['detail'],
+            'Not found.'
+        )
