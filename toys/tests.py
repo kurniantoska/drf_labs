@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 
 from django.test import TestCase
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.six import BytesIO
 
@@ -163,23 +164,23 @@ class ToyTest(TestCase):
     def test_rest_post_get(self):
         for item_data in self.data_post:
             self.client.post(
-                '/toys/',
+                reverse_lazy('toys:home'),
                 data=json.dumps(item_data),
                 content_type='application/json',
             )
 
         self.assertEqual(
-            len(self.client.get('/toys/').json()),
+            len(self.client.get(reverse_lazy('toys:home')).json()),
             4
         )
 
         self.assertEqual(
-            self.client.get('/toys/3/').json()['name'],
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 3})).json()['name'],
             "Skater ska"
         )
 
         self.assertEqual(
-            self.client.get('/toys/4/').json()['name'],
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 4})).json()['name'],
             "PvZ 2 puzzle"
         )
 
@@ -187,19 +188,19 @@ class ToyTest(TestCase):
         # print(client.get('/toys/').json())
 
     def test_rest_put(self):
-        self.client.get('/toys/1/').json()
+        self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 1})).json()
 
-        self.client.put('/toys/1/', data=json.dumps(self.data_toy1_candidate),
+        self.client.put(reverse_lazy('toys:detail', kwargs={'pk': 1}), data=json.dumps(self.data_toy1_candidate),
                         content_type='application/json')
         self.assertEqual(
-            self.client.get('/toys/1/').json()['name'],
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 1})).json()['name'],
             'PvZ 3 puzzle'
         )
 
     def test_rest_delete(self):
-        self.client.delete('/toys/2/')
+        self.client.delete(reverse_lazy('toys:detail', kwargs={'pk': 2}))
         try:
-            self.client.get('/toys/2/').json()
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 2})).json()
             raise AssertionError
         except TypeError:
             pass
@@ -210,109 +211,109 @@ class ToyTest(TestCase):
         with class based view
         :return:
         """
-        data_get = self.client.get('/toys/cbv/').json()
+        data_get = self.client.get(reverse_lazy('toys:cbv_home')).json()
         self.assertEqual(len(data_get), 2, "GET class based FAILED")
 
         for item in self.data_post:
             self.client.post(
-                '/toys/cbv/',
+                reverse_lazy('toys:cbv_home'),
                 data=json.dumps(item),
                 content_type='application/json',
             )
 
-        data_get = self.client.get('/toys/cbv/').json()
+        data_get = self.client.get(reverse_lazy('toys:cbv_home')).json()
         self.assertEqual(len(data_get), 4, "POST class based FAILED")
 
     def test_cbv_put_delete(self):
         self.client.put(
-            '/toys/cbv/1/',
+            reverse_lazy('toys:cbv_detail', kwargs={'pk': 1}),
             data=json.dumps(self.data_toy1_candidate),
             content_type='application/json'
         )
 
         self.assertEqual(
-            self.client.get('/toys/cbv/1/').json()['name'],
+            self.client.get(reverse_lazy('toys:cbv_detail', kwargs={'pk': 1})).json()['name'],
             'PvZ 3 puzzle'
         )
 
-        self.client.delete('/toys/cbv/1/')
+        self.client.delete(reverse_lazy('toys:cbv_detail', kwargs={'pk': 1}))
         self.assertEqual(
-            self.client.get('/toys/1/').status_code,
+            self.client.get(reverse_lazy('toys:cbv_detail', kwargs={'pk': 1})).status_code,
             404
         )
         self.assertEqual(
-            self.client.get('/toys/cbv/1/').json()['detail'],
+            self.client.get(reverse_lazy('toys:cbv_detail', kwargs={'pk': 1})).json()['detail'],
             'Not found.'
         )
 
     def test_mixin_post_get(self):
-        data_get = self.client.get('/toys/cbv_mixin/')
+        data_get = self.client.get(reverse_lazy('toys:cbv_mixin_home'))
         self.assertEqual(len(data_get.json()), 2, 'Failed get data class based mixin')
 
         for item in self.data_post:
             self.client.post(
-                '/toys/cbv_mixin/',
+                reverse_lazy('toys:cbv_mixin_home'),
                 data=json.dumps(item),
                 content_type='application/json',
             )
 
-        data_get = self.client.get('/toys/cbv_mixin/')
+        data_get = self.client.get(reverse_lazy('toys:cbv_mixin_home'))
         self.assertEqual(len(data_get.json()), 4, 'Failed POST data class based mixin')
 
     def test_mixin_put_delete(self):
         self.client.put(
-            '/toys/cbv_mixin/1/',
+            reverse_lazy('toys:cbv_mixin_detail', kwargs={'pk': 1}),
             data=json.dumps(self.data_toy1_candidate),
             content_type='application/json'
         )
 
         self.assertEqual(
-            self.client.get('/toys/cbv_mixin/1/').json()['name'],
+            self.client.get(reverse_lazy('toys:cbv_mixin_detail', kwargs={'pk': 1})).json()['name'],
             'PvZ 3 puzzle'
         )
 
-        self.client.delete('/toys/cbv_mixin/1/')
+        self.client.delete(reverse_lazy('toys:cbv_mixin_detail', kwargs={'pk': 1}))
         self.assertEqual(
-            self.client.get('/toys/1/').status_code,
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk':1})).status_code,
             404
         )
         self.assertEqual(
-            self.client.get('/toys/cbv_mixin/1/').json()['detail'],
+            self.client.get(reverse_lazy('toys:cbv_mixin_detail', kwargs={'pk': 1})).json()['detail'],
             'Not found.'
         )
 
     def test_generic_post_get(self):
-        data_get = self.client.get('/toys/cbv_generic/')
+        data_get = self.client.get(reverse_lazy('toys:cbv_generic_home'))
         self.assertEqual(len(data_get.json()), 2, 'Failed get data GENERIC class based mixin')
 
         for item in self.data_post:
             self.client.post(
-                '/toys/cbv_generic/',
+                reverse_lazy('toys:cbv_generic_home'),
                 data=json.dumps(item),
                 content_type='application/json',
             )
 
-        data_get = self.client.get('/toys/cbv_generic/')
+        data_get = self.client.get(reverse_lazy('toys:cbv_generic_home'))
         self.assertEqual(len(data_get.json()), 4, 'Failed POST data GENERIC class based mixin')
 
     def test_generic_put_delete(self):
         self.client.put(
-            '/toys/cbv_generic/1/',
+            reverse_lazy('toys:cbv_generic_detail', kwargs={'pk': 1}),
             data=json.dumps(self.data_toy1_candidate),
             content_type='application/json'
         )
 
         self.assertEqual(
-            self.client.get('/toys/cbv_generic/1/').json()['name'],
+            self.client.get(reverse_lazy('toys:cbv_generic_detail', kwargs={'pk': 1})).json()['name'],
             'PvZ 3 puzzle'
         )
 
-        self.client.delete('/toys/cbv_generic/1/')
+        self.client.delete(reverse_lazy('toys:cbv_generic_detail', kwargs={'pk': 1}))
         self.assertEqual(
-            self.client.get('/toys/1/').status_code,
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk':1})).status_code,
             404
         )
         self.assertEqual(
-            self.client.get('/toys/cbv_generic/1/').json()['detail'],
+            self.client.get(reverse_lazy('toys:cbv_generic_detail', kwargs={'pk': 1})).json()['detail'],
             'Not found.'
         )

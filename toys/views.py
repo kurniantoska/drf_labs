@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 
@@ -25,7 +24,6 @@ class ToyGenericCBVDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ToySerializer
     
 
-
 class ToyListMixin(mixins.ListModelMixin, 
                    mixins.CreateModelMixin,
                    generics.GenericAPIView):
@@ -36,7 +34,7 @@ class ToyListMixin(mixins.ListModelMixin,
         return self.list(request, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
-        return  self.create(request, *args, **kwargs)
+        return self.create(request, *args, **kwargs)
 
 
 class ToyDetailMixin(mixins.RetrieveModelMixin,
@@ -122,9 +120,9 @@ def toy_list(request):
         if toys_serializer.is_valid():
             toys_serializer.save()
             return Response(toys_serializer.data,
-                                status=status.HTTP_201_CREATED)
+                            status=status.HTTP_201_CREATED)
         return Response(toys_serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 @csrf_exempt
@@ -149,5 +147,3 @@ def toy_detail(request, pk):
     elif request.method == 'DELETE':
         toy.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
