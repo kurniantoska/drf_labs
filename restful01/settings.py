@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'toys.apps.ToysConfig',
+    'drones.apps.DronesConfig',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,12 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# from restful01.pgpass_helper import read_pgpass
+#
+# DATABASES = {
+#     'default': read_pgpass('rest_lab', BASE_DIR),
+# }
 
 
 # Password validation

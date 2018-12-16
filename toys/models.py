@@ -9,7 +9,5 @@ class Toy(models.Model):
     release_date = models.DateTimeField()
     was_included_in_home = models.BooleanField(default=False)
 
-    objects = models.Manager()
-
     class Meta:
         ordering = ('name', )

@@ -41,9 +41,9 @@ class ToyTest(TestCase):
         self.serializer_for_toy2 = ToySerializer(self.toy2)
 
         self.json_string_for_new_toy = '{"name":"Clash Royale play set",' \
-                                  '"description":"6 figures from Clash Royale", ' \
-                                  '"release_date":"2017-10-09T12:10:00.776594Z",' \
-                                  '"toy_category":"Playset","was_included_in_home":false}'
+                                        '"description":"6 figures from Clash Royale", ' \
+                                        '"release_date":"2017-10-09T12:10:00.776594Z",' \
+                                        '"toy_category":"Playset","was_included_in_home":false}'
 
         # set client API
         self.client = APIClient()
@@ -274,7 +274,7 @@ class ToyTest(TestCase):
 
         self.client.delete(reverse_lazy('toys:cbv_mixin_detail', kwargs={'pk': 1}))
         self.assertEqual(
-            self.client.get(reverse_lazy('toys:detail', kwargs={'pk':1})).status_code,
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 1})).status_code,
             404
         )
         self.assertEqual(
@@ -310,8 +310,9 @@ class ToyTest(TestCase):
 
         self.client.delete(reverse_lazy('toys:cbv_generic_detail', kwargs={'pk': 1}))
         self.assertEqual(
-            self.client.get(reverse_lazy('toys:detail', kwargs={'pk':1})).status_code,
-            404
+            self.client.get(reverse_lazy('toys:detail', kwargs={'pk': 1})).status_code,
+            404,
+            'Failed delete data.'
         )
         self.assertEqual(
             self.client.get(reverse_lazy('toys:cbv_generic_detail', kwargs={'pk': 1})).json()['detail'],

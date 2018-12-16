@@ -68,7 +68,7 @@ class ToyListCBV(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer, errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ToyDetailCBV(APIView):
@@ -107,7 +107,6 @@ class JSONResponse(HttpResponse):
         super(JSONResponse, self).__init__(content, **kwargs)
 
 
-@csrf_exempt
 @api_view(['GET', 'POST'])
 def toy_list(request):
     if request.method == 'GET':
@@ -125,7 +124,6 @@ def toy_list(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['GET', 'PUT', 'DELETE'])
 def toy_detail(request, pk):
     try:
