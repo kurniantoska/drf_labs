@@ -248,7 +248,7 @@ class ToyTest(TestCase):
 
     def test_mixin_post_get(self):
         data_get = self.client.get(reverse_lazy('toys:cbv_mixin_home'))
-        self.assertEqual(len(data_get.json()), 2, 'Failed get data class based mixin')
+        self.assertEqual(len(data_get.json()), 4, 'Failed get data class based mixin')
 
         for item in self.data_post:
             self.client.post(
@@ -284,7 +284,7 @@ class ToyTest(TestCase):
 
     def test_generic_post_get(self):
         data_get = self.client.get(reverse_lazy('toys:cbv_generic_home'))
-        self.assertEqual(len(data_get.json()), 2, 'Failed get data GENERIC class based mixin')
+        self.assertEqual(len(data_get.json()), 4, 'Failed get data GENERIC class based mixin')
 
         for item in self.data_post:
             self.client.post(
